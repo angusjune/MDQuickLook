@@ -21,8 +21,13 @@ targets:
     platform: macOS
     sources:
       - Sources/App
+      - Sources/Shared
     dependencies:
       - target: MDQuickLookPreview
+      - package: cmark-gfm
+        products:
+          - cmark-gfm
+          - cmark-gfm-extensions
     entitlements:
       path: Sources/App/MDQuickLook.entitlements
       properties: {}
@@ -38,6 +43,7 @@ targets:
       - path: Sources/Preview
         excludes:
           - "Themes"
+      - Sources/Shared
       - path: Sources/Preview/Themes
         type: folder
     dependencies:

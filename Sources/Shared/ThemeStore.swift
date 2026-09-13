@@ -46,16 +46,35 @@ enum ThemeStore {
         themes(in: themesDir)
     }
 
-    static var installedThemes: [Theme] {
-        themes(in: installedThemesDir)
-    }
-
     static var allThemes: [Theme] {
-        let installed = Set(installedThemes.map(\.name))
-        return installedThemes + builtInThemes.filter { !installed.contains($0.name) }
+        var seen = Set<String>()
+        var out: [Theme] = []
+        // Installed themes live flat or in one `<author>-<repo>/` subdir each.
+        let installedDirs = [installedThemesDir]
+            + subdirs(of: installedThemesDir)
+        for dir in installedDirs + [themesDir] {
+            for theme in themes(in: dir) where !seen.contains(theme.name) {
+                seen.insert(theme.name)
+                out.append(theme)
+            }
+        }
+        return out
     }
 
-    private static func themes(in dir: URL) -> [Theme] {
+    static func isInstalled(_ theme: Theme) -> Bool {
+        !theme.url.path.hasPrefix(themesDir.path)
+    }
+
+    static func delete(_ theme: Theme) throws {
+        try FileManager.default.removeItem(at: theme.url)
+    }
+
+    private static func subdirs(of dir: URL) -> [URL] {
+        ((try? FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: [.isDirectoryKey])) ?? [])
+            .filter { (try? $0.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory == true }
+    }
+
+    static func themes(in dir: URL) -> [Theme] {
         (try? FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil))?
             .filter { $0.pathExtension == "css" }
             .map { Theme(name: $0.deletingPathExtension().lastPathComponent, url: $0) }
