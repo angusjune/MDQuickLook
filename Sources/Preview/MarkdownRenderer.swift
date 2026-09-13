@@ -42,7 +42,7 @@ enum MarkdownRenderer {
         return out
     }
 
-    static func wrapInDocument(_ fragment: String) -> String {
+    static func wrapInDocument(_ fragment: String, css: String = "") -> String {
         """
         <!DOCTYPE html>
         <html>
@@ -55,7 +55,7 @@ enum MarkdownRenderer {
           pre { background: #f6f8fa; padding: 1em; border-radius: 6px; overflow: auto; }
           pre code { background: none; padding: 0; }
           blockquote { border-left: 4px solid #d0d7de; margin: 0; padding: 0 1em; color: #57606a; }
-        </style></head>
+        </style><style>\(css)</style></head>
         <body><div id="write">\(fragment)</div></body>
         </html>
         """

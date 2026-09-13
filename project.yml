@@ -25,8 +25,7 @@ targets:
       - target: MDQuickLookPreview
     entitlements:
       path: Sources/App/MDQuickLook.entitlements
-      properties:
-        com.apple.security.app-sandbox: true
+      properties: {}
     info:
       path: Sources/App/Info.plist
       properties:
@@ -36,7 +35,11 @@ targets:
     type: app-extension
     platform: macOS
     sources:
-      - Sources/Preview
+      - path: Sources/Preview
+        excludes:
+          - "Themes"
+      - path: Sources/Preview/Themes
+        type: folder
     dependencies:
       - package: cmark-gfm
         products:
