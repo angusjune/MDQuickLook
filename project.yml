@@ -37,6 +37,11 @@ targets:
     platform: macOS
     sources:
       - Sources/Preview
+    dependencies:
+      - package: cmark-gfm
+        products:
+          - cmark-gfm
+          - cmark-gfm-extensions
     entitlements:
       path: Sources/Preview/MDQuickLookPreview.entitlements
       properties:
@@ -61,3 +66,8 @@ schemes:
         MDQuickLook: all
     run:
       config: Debug
+
+packages:
+  cmark-gfm:
+    url: https://github.com/swiftlang/swift-cmark
+    from: 0.8.0
