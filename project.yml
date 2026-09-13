@@ -1,0 +1,63 @@
+name: MDQuickLook
+options:
+  bundleIdPrefix: com.angusjune
+  createIntermediateGroups: true
+  deploymentTarget:
+    macOS: "13.0"
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    CODE_SIGN_STYLE: Manual
+    CODE_SIGN_IDENTITY: "-"
+    DEVELOPMENT_TEAM: ""
+    # QL extension hosts resolve NSExtensionPrincipalClass against the appex stub
+    # binary before debug dylibs load — the split build breaks previews in Debug
+    ENABLE_DEBUG_DYLIB: NO
+
+targets:
+  MDQuickLook:
+    type: application
+    platform: macOS
+    sources:
+      - Sources/App
+    dependencies:
+      - target: MDQuickLookPreview
+    entitlements:
+      path: Sources/App/MDQuickLook.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+    info:
+      path: Sources/App/Info.plist
+      properties:
+        CFBundleDisplayName: MDQuickLook
+
+  MDQuickLookPreview:
+    type: app-extension
+    platform: macOS
+    sources:
+      - Sources/Preview
+    entitlements:
+      path: Sources/Preview/MDQuickLookPreview.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+    info:
+      path: Sources/Preview/Info.plist
+      properties:
+        CFBundleDisplayName: MDQuickLook Preview
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.quicklook.preview
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).PreviewProvider
+          NSExtensionAttributes:
+            QLSupportedContentTypes:
+              - net.daringfireball.markdown
+            QLIsDataBasedPreview: true
+            QLSupportsSearchableItems: false
+
+schemes:
+  MDQuickLook:
+    build:
+      targets:
+        MDQuickLook: all
+    run:
+      config: Debug
