@@ -81,6 +81,8 @@ enum MarkdownRenderer {
     /// because document JavaScript never runs in the preview (ADR-0002). Emitted
     /// after the theme's `<style>` so theme rules can't outrank the chrome; the
     /// raw pane sits outside `#write`, which Typora themes scope themselves to.
+    /// Labels centre their text with flex alignment over symmetric padding —
+    /// an asymmetric pixel padding centres only the font it was measured on.
     private static let viewSwitcherCSS = """
       .mdql-view-input { position: fixed; top: 0; left: 0; width: 1px; height: 1px; margin: 0; opacity: 0; pointer-events: none; }
       #mdql-view-raw:checked ~ #write { display: none; }
@@ -100,8 +102,10 @@ enum MarkdownRenderer {
         -webkit-user-select: none; user-select: none;
       }
       .mdql-view-switcher label {
-        display: block; margin: 0; padding: 3px 10px 4px; border-radius: 6px; background: none;
-        font: 500 11px/1.35 -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
+        display: flex; align-items: center; justify-content: center;
+        box-sizing: content-box; min-height: 18px; margin: 0; padding: 0 10px;
+        border-radius: 6px; background: none;
+        font: 500 11px/1 -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
         color: rgba(0, 0, 0, .85); white-space: nowrap; cursor: default; text-transform: none; letter-spacing: 0;
         transition: background-color 120ms ease, box-shadow 120ms ease;
       }
