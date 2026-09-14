@@ -7,7 +7,7 @@ class PreviewProvider: QLPreviewProvider, QLPreviewingController {
         let markdown = (try? String(contentsOf: request.fileURL, encoding: .utf8)) ?? ""
         let themeName = ThemeStore.defaultThemeName
         let css = ThemeStore.themeCSS(named: themeName)
-        let body = MarkdownRenderer.wrapInDocument(MarkdownRenderer.render(markdown), css: css)
+        let body = MarkdownRenderer.wrapInDocument(MarkdownRenderer.render(markdown), css: css, raw: markdown)
         // ponytail: M2 witness — theme name + size recorded so the harness can
         // verify theme switching without eyes; remove in M3.
         try? Data("theme=\(themeName) bytes=\(body.count)".utf8)

@@ -7,8 +7,12 @@ A macOS QuickLook app that previews Markdown files rendered with Typora themes. 
 ### Pieces
 
 **Preview Extension**:
-The passive QuickLook app extension that renders a Markdown file's preview. Has no UI of its own; renders whatever the Default Theme dictates.
+The passive QuickLook app extension that renders a Markdown file's preview. Renders whatever the Default Theme dictates; its only chrome is the View Switcher.
 _Avoid_: plugin, qlgenerator, QLGenerator
+
+**View Switcher**:
+The small segmented control at the bottom right of a preview, flipping it between the **Preview view** (rendered and themed) and the **Raw view** (the Markdown source, escaped and unthemed). Pure CSS — a radio pair driving sibling panes — since JavaScript never runs in a preview (ADR-0002).
+_Avoid_: source mode, code view
 
 **Theme Manager**:
 The containing app. One window: lists installed Themes, adds Themes from a Theme Repo, removes Themes, and selects the Default Theme.
