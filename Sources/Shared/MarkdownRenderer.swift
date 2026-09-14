@@ -96,7 +96,7 @@ enum MarkdownRenderer {
         display: flex; gap: 1px; padding: 2px; border-radius: 8px;
         background: rgba(246, 246, 246, .82);
         -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px);
-        box-shadow: inset 0 0 0 .5px rgba(0, 0, 0, .16), 0 1px 3px rgba(0, 0, 0, .18);
+        box-shadow: inset 0 0 0 .5px rgba(0, 0, 0, .07), 0 1px 3px rgba(0, 0, 0, .07);
         -webkit-user-select: none; user-select: none;
       }
       .mdql-view-switcher label {
@@ -107,7 +107,7 @@ enum MarkdownRenderer {
       }
       #mdql-view-preview:checked ~ .mdql-view-switcher label[for="mdql-view-preview"],
       #mdql-view-raw:checked ~ .mdql-view-switcher label[for="mdql-view-raw"] {
-        background: #fff; box-shadow: 0 0 0 .5px rgba(0, 0, 0, .10), 0 1px 2px rgba(0, 0, 0, .20);
+        background: #fff; box-shadow: 0 0 0 .5px rgba(0, 0, 0, .04), 0 .5px 1.5px rgba(0, 0, 0, .12);
       }
       #mdql-view-preview:focus-visible ~ .mdql-view-switcher label[for="mdql-view-preview"],
       #mdql-view-raw:focus-visible ~ .mdql-view-switcher label[for="mdql-view-raw"] {
@@ -116,12 +116,12 @@ enum MarkdownRenderer {
       @media (prefers-color-scheme: dark) {
         .mdql-view-switcher {
           background: rgba(54, 54, 56, .82);
-          box-shadow: inset 0 0 0 .5px rgba(255, 255, 255, .14), 0 1px 3px rgba(0, 0, 0, .44);
+          box-shadow: inset 0 0 0 .5px rgba(255, 255, 255, .10), 0 1px 3px rgba(0, 0, 0, .20);
         }
         .mdql-view-switcher label { color: rgba(255, 255, 255, .88); }
         #mdql-view-preview:checked ~ .mdql-view-switcher label[for="mdql-view-preview"],
         #mdql-view-raw:checked ~ .mdql-view-switcher label[for="mdql-view-raw"] {
-          background: rgba(122, 122, 126, .70); box-shadow: 0 0 0 .5px rgba(0, 0, 0, .24), 0 1px 2px rgba(0, 0, 0, .36);
+          background: rgba(122, 122, 126, .70); box-shadow: 0 0 0 .5px rgba(0, 0, 0, .08), 0 .5px 1.5px rgba(0, 0, 0, .16);
         }
       }
       @media print { .mdql-view-switcher, .mdql-spacer { display: none; } }
