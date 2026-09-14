@@ -76,7 +76,7 @@ struct ThemePreviewPane: NSViewRepresentable {
 
     func updateNSView(_ view: WKWebView, context: Context) {
         let html = ThemeStore.themeCSS(named: themeName)
-        let body = MarkdownRenderer.wrapInDocument(MarkdownRenderer.render(SampleDoc.markdown), css: html)
+        let body = MarkdownRenderer.wrapInDocument(MarkdownRenderer.render(SampleDoc.markdown), css: html, raw: SampleDoc.markdown)
         view.loadHTMLString(body, baseURL: nil)
     }
 }

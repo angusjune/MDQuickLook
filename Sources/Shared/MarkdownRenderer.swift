@@ -42,8 +42,23 @@ enum MarkdownRenderer {
         return out
     }
 
-    static func wrapInDocument(_ fragment: String, css: String = "") -> String {
+    /// Wraps a rendered fragment in a self-contained document. Passing `raw`
+    /// (the Markdown source) adds the Preview/Raw switcher; omitting it yields
+    /// the preview pane alone.
+    static func wrapInDocument(_ fragment: String, css: String = "", raw: String? = nil) -> String {
+        let inputs = raw == nil ? "" : """
+        <input type="radio" name="mdql-view" id="mdql-view-preview" class="mdql-view-input" checked>
+        <input type="radio" name="mdql-view" id="mdql-view-raw" class="mdql-view-input">
         """
+        let rawPane = raw.map { "<pre class=\"mdql-raw\">\(escapeHTML($0))</pre>" } ?? ""
+        let switcher = raw == nil ? "" : """
+        <div class="mdql-spacer"></div>
+        <div class="mdql-view-switcher" aria-label="View">\
+        <label for="mdql-view-preview">Preview</label>\
+        <label for="mdql-view-raw">Raw</label>\
+        </div>
+        """
+        return """
         <!DOCTYPE html>
         <html>
         <head><meta charset="utf-8"><style>
@@ -55,10 +70,71 @@ enum MarkdownRenderer {
           pre { background: #f6f8fa; padding: 1em; border-radius: 6px; overflow: auto; }
           pre code { background: none; padding: 0; }
           blockquote { border-left: 4px solid #d0d7de; margin: 0; padding: 0 1em; color: #57606a; }
-        </style><style>\(css)</style></head>
-        <body><div id="write">\(fragment)</div></body>
+        </style><style>\(css)</style><style>\(raw == nil ? "" : viewSwitcherCSS)</style></head>
+        <body>\(inputs)<div id="write">\(fragment)</div>\(rawPane)\(switcher)</body>
         </html>
         """
+    }
+
+    /// Preview/Raw switcher: a macOS-style segmented control pinned bottom-right.
+    /// Pure CSS — two radios whose `:checked` state drives the sibling panes —
+    /// because document JavaScript never runs in the preview (ADR-0002). Emitted
+    /// after the theme's `<style>` so theme rules can't outrank the chrome; the
+    /// raw pane sits outside `#write`, which Typora themes scope themselves to.
+    /// Labels centre their text with flex alignment over symmetric padding —
+    /// an asymmetric pixel padding centres only the font it was measured on.
+    private static let viewSwitcherCSS = """
+      .mdql-view-input { position: fixed; top: 0; left: 0; width: 1px; height: 1px; margin: 0; opacity: 0; pointer-events: none; }
+      #mdql-view-raw:checked ~ #write { display: none; }
+      #mdql-view-preview:checked ~ pre.mdql-raw { display: none; }
+      pre.mdql-raw {
+        max-width: 46em; margin: 0 auto; padding: 2em 1.2em 0; border: 0; border-radius: 0; background: none;
+        font: 12px/1.55 ui-monospace, "SF Mono", Menlo, monospace; color: inherit;
+        white-space: pre-wrap; word-wrap: break-word; -webkit-user-select: text; user-select: text;
+      }
+      .mdql-spacer { height: 3.4em; }
+      .mdql-view-switcher {
+        position: fixed; right: 14px; bottom: 14px; z-index: 2147483647;
+        display: flex; gap: 1px; padding: 2px; border-radius: 8px;
+        background: rgba(246, 246, 246, .82);
+        -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px);
+        box-shadow: inset 0 0 0 .5px rgba(0, 0, 0, .07), 0 1px 3px rgba(0, 0, 0, .07);
+        -webkit-user-select: none; user-select: none;
+      }
+      .mdql-view-switcher label {
+        display: flex; align-items: center; justify-content: center;
+        box-sizing: content-box; min-height: 18px; margin: 0; padding: 0 10px;
+        border-radius: 6px; background: none;
+        font: 500 11px/1 -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
+        color: rgba(0, 0, 0, .85); white-space: nowrap; cursor: default; text-transform: none; letter-spacing: 0;
+        transition: background-color 120ms ease, box-shadow 120ms ease;
+      }
+      #mdql-view-preview:checked ~ .mdql-view-switcher label[for="mdql-view-preview"],
+      #mdql-view-raw:checked ~ .mdql-view-switcher label[for="mdql-view-raw"] {
+        background: #fff; box-shadow: 0 0 0 .5px rgba(0, 0, 0, .04), 0 .5px 1.5px rgba(0, 0, 0, .12);
+      }
+      #mdql-view-preview:focus-visible ~ .mdql-view-switcher label[for="mdql-view-preview"],
+      #mdql-view-raw:focus-visible ~ .mdql-view-switcher label[for="mdql-view-raw"] {
+        box-shadow: 0 0 0 3px rgba(0, 122, 255, .45);
+      }
+      @media (prefers-color-scheme: dark) {
+        .mdql-view-switcher {
+          background: rgba(54, 54, 56, .82);
+          box-shadow: inset 0 0 0 .5px rgba(255, 255, 255, .10), 0 1px 3px rgba(0, 0, 0, .20);
+        }
+        .mdql-view-switcher label { color: rgba(255, 255, 255, .88); }
+        #mdql-view-preview:checked ~ .mdql-view-switcher label[for="mdql-view-preview"],
+        #mdql-view-raw:checked ~ .mdql-view-switcher label[for="mdql-view-raw"] {
+          background: rgba(122, 122, 126, .70); box-shadow: 0 0 0 .5px rgba(0, 0, 0, .08), 0 .5px 1.5px rgba(0, 0, 0, .16);
+        }
+      }
+      @media print { .mdql-view-switcher, .mdql-spacer { display: none; } }
+    """
+
+    static func escapeHTML(_ text: String) -> String {
+        text.replacingOccurrences(of: "&", with: "&amp;")
+            .replacingOccurrences(of: "<", with: "&lt;")
+            .replacingOccurrences(of: ">", with: "&gt;")
     }
 }
 
