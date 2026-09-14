@@ -31,3 +31,18 @@ jobs:
         with:
           files: build/Build/Products/Release/MDQuickLook-*.zip
           generate_release_notes: true
+      - name: Update homebrew tap
+        env:
+          TAP_TOKEN: ${{ secrets.TAP_TOKEN }}
+        run: |
+          VER="${GITHUB_REF_NAME#v}"
+          SHA=$(shasum -a 256 build/Build/Products/Release/MDQuickLook-*.zip | cut -d' ' -f1)
+          git clone --depth 1 "https://x-access-token:${TAP_TOKEN}@github.com/angusjune/homebrew-tap.git" tap
+          CASK=tap/Casks/mdquicklook.rb
+          [ -f "$CASK" ] || { echo "::error::$CASK not found in angusjune/homebrew-tap"; exit 1; }
+          sed -i '' -E "s/version \"[^\"]+\"/version \"${VER}\"/; s/sha256 \"[^\"]+\"/sha256 \"${SHA}\"/" "$CASK"
+          cd tap
+          git config user.name "mdquicklook-release-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git commit -am "mdquicklook ${VER}"
+          git push

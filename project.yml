@@ -22,6 +22,8 @@ targets:
     sources:
       - Sources/App
       - Sources/Shared
+      - path: Sources/Preview/Themes
+        type: folder
     dependencies:
       - target: MDQuickLookPreview
       - package: cmark-gfm

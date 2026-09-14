@@ -5,7 +5,29 @@ import cmark_gfm_extensions
 enum MarkdownRenderer {
     /// Renders GFM markdown to an HTML fragment: tables, task lists, strikethrough,
     /// autolinks; raw HTML passes through (sanitized below) per ADR-0002.
+    /// Leading YAML front matter is rendered as a `pre.md-meta-block` (Typora's
+    /// element), which the bundled themes already style — cmark would otherwise
+    /// emit it as a thematic break plus paragraph junk.
     static func render(_ markdown: String) -> String {
+        let (metaHTML, body) = splitFrontMatter(markdown)
+        return metaHTML + renderBody(body)
+    }
+
+    /// Splits a Jekyll-style front matter block: `---` on the first line, closed
+    /// by a later `---` line. Anything else keeps its CommonMark meaning
+    /// (a leading `---` with no closer is a thematic break, not metadata).
+    static func splitFrontMatter(_ markdown: String) -> (metaHTML: String, body: String) {
+        let pattern = "\\A---[ \\t]*\\r?\\n([\\s\\S]*?)\\r?\\n---[ \\t]*(\\r?\\n|\\z)"
+        guard let regex = try? NSRegularExpression(pattern: pattern),
+              let match = regex.firstMatch(in: markdown, range: NSRange(markdown.startIndex..., in: markdown)),
+              let full = Range(match.range(at: 0), in: markdown),
+              let yaml = Range(match.range(at: 1), in: markdown) else {
+            return ("", markdown)
+        }
+        return ("<pre class=\"md-meta-block\">\(escapeHTML(String(markdown[yaml])))</pre>\n", String(markdown[full.upperBound...]))
+    }
+
+    private static func renderBody(_ markdown: String) -> String {
         cmark_gfm_core_extensions_ensure_registered()
         let parser = cmark_parser_new(CMARK_OPT_DEFAULT)
         defer { cmark_parser_free(parser) }

@@ -2,6 +2,11 @@ import Foundation
 
 enum SampleDoc {
     static let markdown = """
+    ---
+    title: MDQuickLook Sample
+    theme: github
+    ---
+
     # Typora Themes
 
     **MDQuickLook** renders Markdown with *Typora* themes. This is a ~~sample~~ document.
